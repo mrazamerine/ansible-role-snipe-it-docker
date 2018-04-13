@@ -1,0 +1,49 @@
+# Snipe-IT Docker tasks - main.yml
+---
+- name: create nginx proxy container
+  docker_container:
+    name: nginx-proxy
+    image: "jwilder/nginx-proxy:{{ nginx_proxy_version }}"
+    state: started
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - /etc/letsencrypt/docker:/etc/nginx/certs
+      - /etc/ssl/certs/dhparam.pem:/etc/nginx/dhparam/dhparam.pem
+
+- name: create snipe-it directory
+  file:
+    path: /srv/snipeit/mysql
+    mode: 0700
+    state: directory
+
+- name: create snipeit env file
+  template:
+    src: env.j2
+    dest: /srv/snipeit/env
+    mode: 0600
+
+- name: create snipe-it database
+  docker_container:
+    name: snipeit-mysql
+    image: "mysql:{{ snipeit_mysql_version }}"
+    state: started
+    env_file: /srv/snipeit/env
+    volumes:
+      - "/srv/snipeit/mysql:/var/lib/mysql:rw"
+
+- name: create snipe-it container
+  docker_container:
+    name: snipeit
+    image: "snipe/snipe-it:{{ snipeit_version }}"
+    state: started
+    exposed_ports:
+      - 80
+    env_file: /srv/snipeit/env
+    env:
+      VIRTUAL_PORT: 80
+      VIRTUAL_HOST: "{{ snipeit_url }}"
+    links:
+      - snipeit-mysql:mysql
