@@ -54,3 +54,13 @@
     links:
       - snipeit-mysql:mysql
    register: snipeit_container
+
+- name: allow snipe-it database to initialize
+  pause:
+    seconds: 60
+  when: snipeit_database.changed and
+        snipeit_container.change
+
+- name: migrate snipe-it database
+  command: docker exec -t snipeit php artisan migrate --force
+  when: snipeit_container.changed
