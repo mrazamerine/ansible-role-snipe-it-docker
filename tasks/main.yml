@@ -15,14 +15,18 @@
 
 - name: create snipe-it directory
   file:
-    path: /srv/snipeit/mysql
+    path: "{{ snipeit_directory }}/{{ item }}"
     mode: 0700
     state: directory
+  with_items:
+    -
+    - mysql
+    - data
 
 - name: create snipeit env file
   template:
     src: env.j2
-    dest: /srv/snipeit/env
+    dest: "{{ snipeit_directory }}/.env"
     mode: 0600
 
 - name: create snipe-it database
@@ -30,9 +34,9 @@
     name: snipeit-mysql
     image: "mysql:{{ snipeit_mysql_version }}"
     state: started
-    env_file: /srv/snipeit/env
+    env_file: "{{ snipeit_directory }}/.env"
     volumes:
-      - "/srv/snipeit/mysql:/var/lib/mysql:rw"
+      - "{{ snipeit_directory }}/mysql:/var/lib/mysql:rw"
 
 - name: create snipe-it container
   docker_container:
@@ -41,9 +45,12 @@
     state: started
     exposed_ports:
       - 80
-    env_file: /srv/snipeit/env
+    env_file: "{{ snipeit_directory }}/.env"
     env:
       VIRTUAL_PORT: 80
-      VIRTUAL_HOST: "{{ snipeit_url }}"
+      VIRTUAL_HOST: "{{ snipeit_domain_name }}"
+    volumes:
+      - "{{ snipeit_directory }}/data:/var/lib/snipeit"
     links:
       - snipeit-mysql:mysql
+   register: snipeit_container

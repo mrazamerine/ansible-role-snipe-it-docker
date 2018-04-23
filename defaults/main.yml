@@ -4,6 +4,8 @@ nginx_proxy_version: latest
 
 snipeit_debug_mode: false
 
+snipeit_directory: /srv/snipeit
+
 snipeit_mail_encryption: tls
 
 snipeit_mail_from_name: Snipe-IT
