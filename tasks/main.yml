@@ -37,6 +37,7 @@
     env_file: "{{ snipeit_directory }}/.env"
     volumes:
       - "{{ snipeit_directory }}/mysql:/var/lib/mysql:rw"
+  register: snipeit_database
 
 - name: create snipe-it container
   docker_container:
@@ -53,13 +54,13 @@
       - "{{ snipeit_directory }}/data:/var/lib/snipeit"
     links:
       - snipeit-mysql:mysql
-   register: snipeit_container
+  register: snipeit_container
 
 - name: allow snipe-it database to initialize
   pause:
     seconds: 60
   when: snipeit_database.changed and
-        snipeit_container.change
+        snipeit_container.changed
 
 - name: migrate snipe-it database
   command: docker exec -t snipeit php artisan migrate --force
