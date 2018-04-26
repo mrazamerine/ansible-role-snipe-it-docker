@@ -1,5 +1,13 @@
 # Snipe-IT Docker tasks - main.yml
 ---
+- name: ufw - allow http/https connections
+  ufw:
+    rule: allow
+    port: "{{ item }}"
+  with_items:
+    - http
+    - https
+
 - name: create nginx proxy container
   docker_container:
     name: nginx-proxy
