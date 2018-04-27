@@ -13,6 +13,7 @@
     name: nginx-proxy
     image: "jwilder/nginx-proxy:{{ nginx_proxy_version }}"
     state: started
+    restart_policy: always
     ports:
       - "80:80"
       - "443:443"
@@ -42,6 +43,7 @@
     name: snipeit-mysql
     image: "mysql:{{ snipeit_mysql_version }}"
     state: started
+    restart_policy: always
     env_file: "{{ snipeit_directory }}/.env"
     volumes:
       - "{{ snipeit_directory }}/mysql:/var/lib/mysql:rw"
@@ -52,6 +54,7 @@
     name: snipeit
     image: "snipe/snipe-it:{{ snipeit_version }}"
     state: started
+    restart_policy: always
     exposed_ports:
       - 80
     env_file: "{{ snipeit_directory }}/.env"
