@@ -1,0 +1,4 @@
+# Snipe-IT Docker meta - main.yml
+---
+dependencies:
+  - { role: docker }
